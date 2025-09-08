@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+*.egg-info/
+.eggs/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+jobmatch-29e52-firebase-adminsdk-fbsvc-433c0cfd11.json
+
+# IDE files
+.vscode/
+.idea/
+*.swp

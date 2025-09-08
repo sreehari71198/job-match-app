@@ -1,0 +1,240 @@
+/* Container centers vertically and horizontally */
+.authentication-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Roboto Condensed', sans-serif;
+  background-color: #f8f9fa;
+  padding: 1rem;
+}
+
+.auth-card {
+  background-color: white;
+  padding: 2.5rem 3rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  max-width: 420px;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+}
+
+.auth-title {
+  text-align: center;
+  color: #ca8a04;
+  font-weight: 700;
+  font-size: 2.2rem;
+  margin-bottom: 2rem;
+  letter-spacing: 1px;
+}
+
+.auth-title-char {
+  display: inline-block;
+  animation: fadeIn 0.5s ease-in;
+}
+
+/* Toggle buttons for Login / Signup */
+.auth-toggle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+  background-color: #f3f4f6;
+  border-radius: 25px;
+  padding: 4px;
+  gap: 0;
+}
+
+.auth-toggle button {
+  background-color: transparent;
+  border: none;
+  color: #6b7280;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.auth-toggle button.active {
+  background-color: #ca8a04;
+  color: white;
+  box-shadow: 0 2px 4px rgba(202, 138, 4, 0.3);
+}
+
+.auth-toggle button:hover:not(.active) {
+  color: #ca8a04;
+}
+
+/* Form styles */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.auth-form input {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  border: 2px solid #e5e7eb;
+  font-size: 1rem;
+  color: #374151;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+.auth-form input::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.auth-form input:focus {
+  outline: none;
+  border-color: #ca8a04;
+  box-shadow: 0 0 0 3px rgba(202, 138, 4, 0.1);
+}
+
+.auth-form input:invalid {
+  border-color: #ef4444;
+}
+
+.auth-submit {
+  background: linear-gradient(135deg, #ca8a04 0%, #d97706 100%);
+  border: none;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  font-family: 'Roboto Condensed', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+}
+
+.auth-submit:hover {
+  background: linear-gradient(135deg, #b45309 0%, #c2410c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+}
+
+.auth-submit:active {
+  transform: translateY(0);
+}
+
+/* Message area for errors and success */
+.auth-message {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-weight: 500;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.auth-message.error {
+  color: #dc2626;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+}
+
+.auth-message.success {
+  color: #16a34a;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+/* Loading state */
+.auth-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    max-width: 100%;
+  }
+
+  .auth-title {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .auth-toggle button {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+
+  .auth-form {
+    gap: 1.25rem;
+  }
+
+  .auth-form input {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .auth-submit {
+    padding: 0.875rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .authentication-container {
+    padding: 0.5rem;
+  }
+  
+  .auth-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .auth-title {
+    font-size: 1.6rem;
+  }
+}
+
+/* Focus indicators for accessibility */
+.auth-toggle button:focus,
+.auth-form input:focus,
+.auth-submit:focus {
+  outline: 2px solid #ca8a04;
+  outline-offset: 2px;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .authentication-container {
+    background-color: #1f2937;
+  }
+  
+  .auth-card {
+    background-color: #374151;
+    border-color: #4b5563;
+  }
+  
+  .auth-form input {
+    background-color: #4b5563;
+    border-color: #6b7280;
+    color: #f9fafb;
+  }
+  
+  .auth-form input::placeholder {
+    color: #9ca3af;
+  }
+}

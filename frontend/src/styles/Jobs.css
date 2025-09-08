@@ -1,0 +1,409 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+
+.jobs-container {
+  font-family: 'Roboto Condensed', sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.jobs-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.jobs-header h1 {
+  color: #1e293b;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.jobs-header p {
+  color: #64748b;
+  font-size: 1.1rem;
+}
+
+/* Upload Section */
+.upload-section {
+  margin-bottom: 2rem;
+}
+
+.upload-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: end;
+}
+
+.upload-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.upload-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.upload-label span {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.upload-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.upload-button {
+  border: 2px dashed #ca8a04;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.upload-button:hover {
+  border-color: #92400e;
+  background: #fef3c7;
+}
+
+.file-name {
+  font-size: 0.9rem;
+  color: #059669;
+  background: #ecfdf5;
+  padding: 0.5rem;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.analyze-button {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #ca8a04 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  justify-self: center;
+  min-width: 200px;
+}
+
+.analyze-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+}
+
+.analyze-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Results Section */
+.results-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Summary Cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.summary-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.summary-card h3 {
+  font-size: 1rem;
+  color: #64748b;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.match-percentage {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #059669;
+  line-height: 1;
+}
+
+.count {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0ea5e9;
+  line-height: 1;
+}
+
+.missing-card .count {
+  color: #f59e0b;
+}
+
+/* Details Grid */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.details-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.details-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #1e293b;
+}
+
+.skills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skill-item {
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.skill-item.positive {
+  background: #ecfdf5;
+  color: #059669;
+  border-left: 4px solid #059669;
+}
+
+.skill-item.negative {
+  background: #fef3c7;
+  color: #d97706;
+  border-left: 4px solid #d97706;
+}
+
+/* Recommendations Table */
+.recommendations-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.recommendations-section h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.recommendations-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.recommendations-table th {
+  background: #f8fafc;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.recommendations-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.recommendations-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.skill-cell {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.course-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.course-title {
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.course-code {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.match-cell {
+  text-align: center;
+}
+
+.match-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.match-badge.high {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.match-badge.medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.match-badge.low {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* External Courses */
+.external-courses-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.external-courses-section h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
+
+.external-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.external-course-card {
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.external-course-card h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.external-course-card a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.external-course-card a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .jobs-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .upload-card {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  .jobs-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendations-table {
+    font-size: 0.9rem;
+  }
+
+  .recommendations-table th,
+  .recommendations-table td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .external-courses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .match-percentage {
+    font-size: 2.5rem;
+  }
+
+  .count {
+    font-size: 2rem;
+  }
+
+  .recommendations-table th,
+  .recommendations-table td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .course-info {
+    gap: 0.1rem;
+  }
+}
