@@ -43,3 +43,5 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+backend/jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json
