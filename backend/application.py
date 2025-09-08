@@ -48,7 +48,7 @@ CORS(
 print("OpenAI Key (partial):", os.getenv("OPENAI_API_KEY")[:8])
 
 # Configure Google Firestore with service account credentials
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
+# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
 db = firestore.Client()
 
 # Initialize password hasher for secure password storage (Argon2)
