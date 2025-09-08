@@ -34,6 +34,7 @@ application = Flask(__name__)
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://job-match-frontend-gj83.onrender.com"
 ]
 
 CORS(
