@@ -5,22 +5,25 @@ import "../styles/Authentication.css";
 
 const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 
+const purgeAppCache = () => {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith("jm_")) keys.push(k);
+  }
+  keys.forEach((k) => localStorage.removeItem(k));
+};
+
 const Authentication = () => {
   const text = "Job Match";
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated } = useAuth();
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated) {
       const from = location.state?.from?.pathname || "/SkillMatch";
@@ -29,7 +32,7 @@ const Authentication = () => {
   }, [isAuthenticated, navigate, location.state?.from?.pathname]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData(s => ({ ...s, [e.target.name]: e.target.value }));
   };
 
   const handleToggle = (loginMode) => {
@@ -42,27 +45,25 @@ const Authentication = () => {
     e.preventDefault();
     setMessage("");
     setLoading(true);
-
     try {
       if (isLogin) {
         const response = await fetch(`${API_URL}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
+          body: JSON.stringify({ email: formData.email, password: formData.password })
         });
-
         const data = await response.json();
 
         if (data.success) {
-          login({
-            id: data.student.id,
-            name: data.student.name,
-            email: data.student.email,
-          });
+          const newUserId = data.student?.id || data.student?.email?.toLowerCase() || formData.email?.toLowerCase();
+          const prevUserId = localStorage.getItem("jm_userId");
+          
+          if (prevUserId && prevUserId !== newUserId) {
+            purgeAppCache();
+          }
+          localStorage.setItem("jm_userId", newUserId);
 
+          login({ id: data.student.id, name: data.student.name, email: data.student.email });
           const from = location.state?.from?.pathname || "/SkillMatch";
           navigate(from, { replace: true });
         } else {
@@ -72,11 +73,9 @@ const Authentication = () => {
         const response = await fetch(`${API_URL}/signUp`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(formData)
         });
-
         const data = await response.json();
-
         if (data.success) {
           setMessage("Account created successfully! Please login.");
           setIsLogin(true);
@@ -97,71 +96,52 @@ const Authentication = () => {
     <div className="authentication-container">
       <div className="auth-card">
         <h1 className="auth-title">
-          {text.split("").map((char, index) => (
-            <span key={index} className="auth-title-char" style={{animationDelay: `${index * 0.1}s`}}>
-              {char === " " ? "\u00A0" : char}
+          {text.split("").map((c, i) => (
+            <span key={i} className="auth-title-char">
+              {c === " " ? "\u00A0" : c}
             </span>
           ))}
         </h1>
 
         <div className="auth-toggle">
-          <button
-            className={isLogin ? "active" : ""}
-            onClick={() => handleToggle(true)}
-            type="button"
-          >
-            Login
-          </button>
-          <button
-            className={!isLogin ? "active" : ""}
-            onClick={() => handleToggle(false)}
-            type="button"
-          >
-            Sign Up
-          </button>
+          <button className={isLogin ? "active" : ""} onClick={() => handleToggle(true)}>Login</button>
+          <button className={!isLogin ? "active" : ""} onClick={() => handleToggle(false)}>Sign Up</button>
         </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
+        <form className="auth-form" onSubmit={handleSubmit}>
           {!isLogin && (
             <input
-              type="text"
               name="name"
-              placeholder="Full Name"
+              type="text"
+              placeholder="Name"
               value={formData.name}
               onChange={handleChange}
-              required={!isLogin}
-              autoComplete="name"
+              required
             />
           )}
           <input
-            type="email"
             name="email"
-            placeholder="Email Address"
+            type="email"
+            placeholder="Email"
             value={formData.email}
             onChange={handleChange}
             required
-            autoComplete="email"
           />
           <input
-            type="password"
             name="password"
+            type="password"
             placeholder="Password"
             value={formData.password}
             onChange={handleChange}
             required
-            autoComplete={isLogin ? "current-password" : "new-password"}
           />
-          <button 
-            type="submit" 
-            className="auth-submit" 
-            disabled={loading}
-          >
-            {loading ? "Processing..." : (isLogin ? "Login" : "Sign Up")}
+          <button className="auth-submit" type="submit" disabled={loading}>
+            {loading ? (isLogin ? "Logging in..." : "Creating...") : isLogin ? "Login" : "Create Account"}
           </button>
         </form>
 
         {message && (
-          <div className={`auth-message ${message.includes('successful') ? 'success' : 'error'}`}>
+          <div className={`auth-message ${message.toLowerCase().includes("success") ? "success" : "error"}`}>
             {message}
           </div>
         )}
