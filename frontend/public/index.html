@@ -4,40 +4,115 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="theme-color" content="#ca8a04" />
+    
+    <!-- SEO Meta Tags -->
     <meta
       name="description"
-      content="Web site created using create-react-app"
+      content="Job Match - AI-powered CV analysis tool that matches your resume with job descriptions, provides skill gap analysis, and recommends personalized courses from BITS Pilani."
     />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
+    <meta
+      name="keywords"
+      content="CV analysis, job matching, resume scanner, skill assessment, career guidance, AI job matching, BITS courses, interview preparation"
+    />
+    <meta name="author" content="Job Match" />
+    
+    <!-- Open Graph Meta Tags for Social Media -->
+    <meta property="og:title" content="Job Match - AI Career Assistant" />
+    <meta property="og:description" content="Analyze your CV against job descriptions with AI. Get personalized skill recommendations and course suggestions." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://job-match-frontend-gj83.onrender.com/" />
+    <meta property="og:image" content="%PUBLIC_URL%/job-match-og.png" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Job Match - AI Career Assistant" />
+    <meta name="twitter:description" content="Analyze your CV against job descriptions with AI. Get personalized skill recommendations and course suggestions." />
+    <meta name="twitter:image" content="%PUBLIC_URL%/job-match-og.png" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png" />
+    
+    <!-- Manifest for PWA -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    
+    <!-- Preconnect to external resources for better performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet" />
+    
+    <!-- Additional SEO and Security Headers -->
+    <meta name="robots" content="index, follow" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://job-match-frontend-gj83.onrender.com/" />
+    
+    <title>Job Match - AI-Powered CV Analysis & Career Guidance</title>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="padding: 2rem; text-align: center; font-family: Arial, sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>Job Match requires JavaScript to function properly. Please enable JavaScript in your browser settings and reload the page.</p>
+        <p>For the best experience, we recommend using a modern browser like Chrome, Firefox, Safari, or Edge.</p>
+      </div>
+    </noscript>
+    
+    <!-- Main App Container -->
     <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
+    
+    <!-- Loading Fallback (optional) -->
+    <div id="loading-fallback" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f8f9fa; z-index: 9999; display: flex; align-items: center; justify-content: center; font-family: 'Roboto Condensed', Arial, sans-serif;">
+      <div style="text-align: center;">
+        <div style="width: 40px; height: 40px; border: 4px solid #e5e7eb; border-left-color: #ca8a04; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+        <h2 style="color: #ca8a04; margin: 0;">Loading Job Match...</h2>
+        <p style="color: #64748b; margin: 0.5rem 0 0;">Preparing your AI career assistant</p>
+      </div>
+    </div>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Job Match",
+      "description": "AI-powered CV analysis tool that matches resumes with job descriptions and provides personalized career guidance",
+      "url": "https://job-match-frontend-gj83.onrender.com/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web Browser",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "Job Match Team"
+      },
+      "featureList": [
+        "CV Analysis",
+        "Job Matching",
+        "Skill Gap Assessment",
+        "Course Recommendations",
+        "Interview Preparation"
+      ]
+    }
+    </script>
+    
+    <!-- CSS for Loading Animation -->
+    <style>
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      /* Hide loading fallback when React loads */
+      #root:not(:empty) + #loading-fallback {
+        display: none !important;
+      }
+    </style>
   </body>
 </html>
