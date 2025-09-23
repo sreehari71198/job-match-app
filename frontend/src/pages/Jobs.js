@@ -294,16 +294,8 @@ const Jobs = () => {
       <footer className="bits-footer">
         <div className="footer-content">
           <div className="footer-left">
-            <p>An institution deemed to be a University estd. vide Sec.3 of the UGC Act,1956 under notification # F.12-23/63.U-2 of Jun 18,1964</p>
-            <p>© 2024 AUGS-AGSR DIVISION, FD-II, BITS Pilani, Pilani Campus</p>
+            <p>© 2025 Department of Management, BITS Pilani, Pilani Campus</p>
             <p>Release Version 1.0 - MatchMySkill</p>
-          </div>
-          <div className="footer-right">
-            <div className="footer-badges">
-              <span className="badge innovate">innovate</span>
-              <span className="badge achieve">achieve</span>
-              <span className="badge lead">lead</span>
-            </div>
           </div>
         </div>
       </footer>
