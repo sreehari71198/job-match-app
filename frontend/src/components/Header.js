@@ -96,7 +96,7 @@ const Header = () => {
                   Welcome, {user?.name || user?.email?.split('@')[0] || 'Student'}
                 </div>
                 <button onClick={handleLogout} className="logout-button">
-                  🚪 Logout
+                  Logout
                 </button>
               </div>
             )}
