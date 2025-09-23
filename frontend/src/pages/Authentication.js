@@ -15,7 +15,6 @@ const purgeAppCache = () => {
 };
 
 const Authentication = () => {
-  const text = "Job Match";
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
   const [message, setMessage] = useState("");
@@ -45,15 +44,19 @@ const Authentication = () => {
     e.preventDefault();
     setMessage("");
     setLoading(true);
+
     try {
       if (isLogin) {
         const response = await fetch(`${API_URL}/login`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email, password: formData.password })
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password
+          })
         });
-        const data = await response.json();
 
+        const data = await response.json();
         if (data.success) {
           const newUserId = data.student?.id || data.student?.email?.toLowerCase() || formData.email?.toLowerCase();
           const prevUserId = localStorage.getItem("jm_userId");
@@ -61,9 +64,14 @@ const Authentication = () => {
           if (prevUserId && prevUserId !== newUserId) {
             purgeAppCache();
           }
+          
           localStorage.setItem("jm_userId", newUserId);
-
-          login({ id: data.student.id, name: data.student.name, email: data.student.email });
+          login({
+            id: data.student.id,
+            name: data.student.name,
+            email: data.student.email
+          });
+          
           const from = location.state?.from?.pathname || "/SkillMatch";
           navigate(from, { replace: true });
         } else {
@@ -75,6 +83,7 @@ const Authentication = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData)
         });
+
         const data = await response.json();
         if (data.success) {
           setMessage("Account created successfully! Please login.");
@@ -93,59 +102,110 @@ const Authentication = () => {
   };
 
   return (
-    <div className="authentication-container">
-      <div className="auth-card">
-        <h1 className="auth-title">
-          {text.split("").map((c, i) => (
-            <span key={i} className="auth-title-char">
-              {c === " " ? "\u00A0" : c}
-            </span>
-          ))}
-        </h1>
+    <div className="bits-auth-page">
+      {/* Main Content */}
+      <main className="bits-main-content">
+        <div className="login-section">
+          <div className="login-card">
+            <h2 className="login-title">Student Login</h2>
+            
+            <div className="login-instruction">
+              <p>Log in using your BITS Pilani, Email Account</p>
+              <small>Example: xyz@pilani.bits-pilani.ac.in</small>
+            </div>
 
-        <div className="auth-toggle">
-          <button className={isLogin ? "active" : ""} onClick={() => handleToggle(true)}>Login</button>
-          <button className={!isLogin ? "active" : ""} onClick={() => handleToggle(false)}>Sign Up</button>
-        </div>
+            {message && (
+              <div className={`message ${message.includes('successful') ? 'success' : 'error'}`}>
+                {message}
+              </div>
+            )}
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {!isLogin && (
-            <input
-              name="name"
-              type="text"
-              placeholder="Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          )}
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <button className="auth-submit" type="submit" disabled={loading}>
-            {loading ? (isLogin ? "Logging in..." : "Creating...") : isLogin ? "Login" : "Create Account"}
-          </button>
-        </form>
+            {/* Toggle between Login/Signup */}
+            <div className="auth-toggle">
+              <button 
+                type="button"
+                className={isLogin ? 'active' : ''} 
+                onClick={() => handleToggle(true)}
+              >
+                Login
+              </button>
+              <button 
+                type="button"
+                className={!isLogin ? 'active' : ''} 
+                onClick={() => handleToggle(false)}
+              >
+                Sign Up
+              </button>
+            </div>
 
-        {message && (
-          <div className={`auth-message ${message.toLowerCase().includes("success") ? "success" : "error"}`}>
-            {message}
+            <form onSubmit={handleSubmit} className="login-form">
+              {!isLogin && (
+                <div className="form-group">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required={!isLogin}
+                  />
+                </div>
+              )}
+              
+              <div className="form-group">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="BITS Email (xyz@pilani.bits-pilani.ac.in)"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              
+              <button type="submit" className="login-button" disabled={loading}>
+                {loading ? 'Processing...' : (isLogin ? 'Login' : 'Sign Up')}
+              </button>
+            </form>
+
+            {/* Gmail Login Button */}
+            <div className="gmail-login-section">
+              <button type="button" className="gmail-button" disabled>
+                BITS Gmail Login - Coming Soon
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      </main>
+
+      {/* BITS Footer */}
+      <footer className="bits-footer">
+        <div className="footer-content">
+          <div className="footer-left">
+            <p>An institution deemed to be a University estd. vide Sec.3 of the UGC Act,1956 under notification # F.12-23/63.U-2 of Jun 18,1964</p>
+            <p>© 2024 AUGS-AGSR DIVISION, FD-II, BITS Pilani, Pilani Campus</p>
+            <p>Release Version 1.0</p>
+          </div>
+          <div className="footer-right">
+            <div className="footer-badges">
+              <span className="badge innovate">innovate</span>
+              <span className="badge achieve">achieve</span>
+              <span className="badge lead">lead</span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

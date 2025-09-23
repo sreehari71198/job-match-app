@@ -8,53 +8,97 @@ import logging
 import json
 import re
 import requests
-import firebase_admin
 from argon2.exceptions import VerifyMismatchError
-from firebase_admin import credentials, firestore
 from argon2 import PasswordHasher
 from google.cloud import firestore
-
-# ----------- New code --------------------------
+from google.oauth2 import service_account
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
-# -----------------------------------------------
 
-# Load environment variables ( OpenAI API key from .env file)
+# Load environment variables
 load_dotenv()
 
-# Initialize OpenAI client (auto-detects key from env)
+# Initialize OpenAI client
 client = OpenAI()
 
 # Initialize Flask application
 application = Flask(__name__)
 
-# Enable CORS for frontend running on localhost:3575
+# CORS configuration - FIXED
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3000", 
     "https://job-match-frontend-gj83.onrender.com"
 ]
 
 CORS(
     application,
     resources={r"/*": {"origins": ALLOWED_ORIGINS}},
-    supports_credentials=True,          # note the exact name
+    supports_credentials=True,
     allow_headers=["Content-Type", "Authorization"],
-    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 )
-# Debugging: print partial API key (first 8 characters only)
-print("OpenAI Key (partial):", os.getenv("OPENAI_API_KEY")[:8])
 
-# Configure Google Firestore with service account credentials
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
-db = firestore.Client()
+@application.after_request
+def add_cors_headers(response):
+    origin = request.headers.get("Origin")
+    if origin in ALLOWED_ORIGINS:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Vary"] = "Origin"
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+    return response
 
-# Initialize password hasher for secure password storage (Argon2)
+@application.before_request
+def handle_preflight():
+    if request.method == "OPTIONS":
+        response = jsonify({})
+        origin = request.headers.get("Origin")
+        if origin in ALLOWED_ORIGINS:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Credentials"] = "true"
+            response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+            response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        return response
+
+# Debugging: print partial API key
+print("OpenAI Key (partial):", os.getenv("OPENAI_API_KEY", "")[:8] if os.getenv("OPENAI_API_KEY") else "Not found")
+
+# Enhanced Firestore initialization
+def initialize_firestore():
+    try:
+        # Try local service account file
+        local_creds = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
+        if os.path.exists(local_creds):
+            print(f"✅ Using local service account: {local_creds}")
+            credentials = service_account.Credentials.from_service_account_file(local_creds)
+            return firestore.Client(credentials=credentials)
+        
+        # Fallback to environment variable
+        creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+        if creds_path and os.path.exists(creds_path):
+            print(f"✅ Using environment credential: {creds_path}")
+            credentials = service_account.Credentials.from_service_account_file(creds_path)
+            return firestore.Client(credentials=credentials)
+            
+        # Last resort: Application Default Credentials
+        print("⚠️ Attempting Application Default Credentials...")
+        return firestore.Client()
+        
+    except Exception as e:
+        print(f"❌ Firestore initialization error: {e}")
+        return None
+
+# Initialize Firestore
+db = initialize_firestore()
+
+# Initialize password hasher
 ph = PasswordHasher()
 
-# Set up logging (logs both to file and console)
+# Set up logging
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -63,58 +107,38 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
+
 logger = logging.getLogger(__name__)
 
-# ----------- New code --------------------------
 # Global variable for course data caching
 COURSES_DF = None
-# ----------- New code --------------------------
 
-# -------------------- HELPER FUNCTIONS --------------------
-
-# ----------- New code --------------------------
 def load_course_data():
-    """Load course data from JSON or Excel file with updated column names"""
+    """Load course data from JSON file"""
     global COURSES_DF
     if COURSES_DF is not None:
         return COURSES_DF
-    
     try:
-        # Option 1: Load from JSON
         courses_df = pd.read_json('data/courses.json')
-        
-        # Option 2: Load from Excel (uncomment if using Excel)
-        # courses_df = pd.read_excel('data/courses.xlsx')
-        
         COURSES_DF = courses_df
         logger.info(f"Loaded {len(courses_df)} courses from database")
         return courses_df
     except Exception as e:
         logger.error(f"Error loading course data: {e}")
-        return pd.DataFrame()  # Return empty DataFrame if loading fails
+        return pd.DataFrame()
 
 def find_similar_courses(missing_skills, threshold=0.1):
-    """
-    Find most similar courses for each missing skill using cosine similarity
-    Updated to use: Course No, Course Title, Instructor-in-charge, Description and Scope
-    
-    Args:
-        missing_skills: List of missing skills from GPT analysis
-        threshold: Minimum similarity score to consider (default 0.1)
-    
-    Returns:
-        Dictionary with skill as key and recommended course info as value
-    """
+    """Find most similar courses for each missing skill using cosine similarity"""
     courses_df = load_course_data()
     if courses_df.empty:
         return {}
-    
+
     # Combine Course Title with Description and Scope for better matching
     courses_df['Combined'] = (
-        courses_df['Course Title'] + ' ' + 
-        courses_df['Description and Scope']
+        courses_df['Course Title'] + ' ' +
+        courses_df['Description']
     )
-    
+
     # Create corpus of course descriptions
     corpus = courses_df['Combined'].tolist()
     
@@ -122,14 +146,13 @@ def find_similar_courses(missing_skills, threshold=0.1):
     vectorizer = TfidfVectorizer(
         stop_words='english',
         max_features=1000,
-        ngram_range=(1, 2)  # Include both single words and bigrams
+        ngram_range=(1, 2)
     )
-    
+
     # Fit vectorizer on course corpus
     course_vectors = vectorizer.fit_transform(corpus)
     
     results = {}
-    
     for skill in missing_skills:
         try:
             # Transform the missing skill
@@ -146,33 +169,27 @@ def find_similar_courses(missing_skills, threshold=0.1):
             if max_similarity >= threshold:
                 results[skill] = {
                     "Course No": courses_df.iloc[max_idx]['Course No'],
-                    "Course Title": courses_df.iloc[max_idx]['Course Title'],
-                    "Instructor-in-charge": courses_df.iloc[max_idx]['Instructor-in-charge'],
+                    "Course Title": courses_df.iloc[max_idx]['Course Title'], 
                     "Similarity": float(max_similarity),
-                    "Description and Scope": courses_df.iloc[max_idx]['Description and Scope'][:100] + "..."  # Truncate description
+                    "Description and Scope": courses_df.iloc[max_idx]['Description'][:100] + "..."
                 }
             else:
-                # No good match found
                 results[skill] = {
                     "Course No": "N/A",
                     "Course Title": "No suitable course found",
-                    "Instructor-in-charge": "N/A",
                     "Similarity": 0.0,
                     "Description and Scope": "Consider external courses for this skill"
                 }
-                
         except Exception as e:
             logger.error(f"Error processing skill '{skill}': {e}")
             results[skill] = {
                 "Course No": "ERROR",
                 "Course Title": "Error processing skill",
-                "Instructor-in-charge": "N/A", 
                 "Similarity": 0.0,
                 "Description and Scope": "Error occurred during processing"
             }
     
     return results
-# ----------- New code --------------------------
 
 def is_valid_url(url):
     """Check if a given URL is valid and reachable within 5 seconds."""
@@ -181,7 +198,6 @@ def is_valid_url(url):
         return response.status_code == 200
     except requests.RequestException:
         return False
-
 
 def extract_text_from_pdf(pdf_file):
     """Extract raw text from an uploaded PDF file."""
@@ -196,30 +212,22 @@ def extract_text_from_pdf(pdf_file):
         logger.error(f"Error extracting text from PDF: {e}")
         raise
 
-
 def compare_with_gpt_for_non_immediate_interview(job_description, cv_text):
-    """
-    Send job description + CV to GPT for analysis.
-    GPT returns a JSON object containing:
-    - match percentage
-    - similarities  
-    - missing skills
-    - recommended courses with links
-    + BITS course recommendations based on missing skills
-    """
+    """Send job description + CV to GPT for analysis."""
     try:
         prompt = f"""
-        Job Description: {job_description}
-        CV Content: {cv_text}
+Job Description: {job_description}
 
-        Analyze the match between the job description and the CV. Return a JSON object with:
-        - "match_percentage" (as a number)
-        - "similarities" (as an array of strings)
-        - "missing" (as an array of strings - specific skills/technologies missing)
-        - "course_recommendations" (with 'name' and 'url' - external courses)
-        
-        For missing skills, be specific (e.g., "Python programming", "Machine Learning", "React.js") rather than vague.
-        """
+CV Content: {cv_text}
+
+Analyze the match between the job description and the CV. Return a JSON object with:
+- "match_percentage" (as a number)
+- "similarities" (as an array of strings)
+- "missing" (as an array of strings - specific skills/technologies missing)
+- "course_recommendations" (with 'name' and 'url' - external courses)
+
+For missing skills, be specific (e.g., "Python programming", "Machine Learning", "React.js") rather than vague.
+"""
 
         response = client.chat.completions.create(
             model="gpt-4o-mini",
@@ -235,16 +243,16 @@ def compare_with_gpt_for_non_immediate_interview(job_description, cv_text):
         if not match:
             logger.error("No JSON object found in GPT response.")
             raise ValueError("Invalid response format from GPT")
-
+        
         feedback = json.loads(match.group(0))
-
+        
         # Keep only valid course URLs for external recommendations
         feedback['course_recommendations'] = [
             course for course in feedback.get('course_recommendations', [])
             if is_valid_url(course['url'])
         ]
-
-        # NEW: Add BITS course recommendations based on missing skills
+        
+        # Add BITS course recommendations based on missing skills
         missing_skills = feedback.get('missing', [])
         if missing_skills:
             logger.info(f"Finding BITS courses for missing skills: {missing_skills}")
@@ -252,50 +260,23 @@ def compare_with_gpt_for_non_immediate_interview(job_description, cv_text):
             feedback['bits_recommendations'] = bits_recommendations
         else:
             feedback['bits_recommendations'] = {}
-
+        
         return feedback
-
+        
     except Exception as e:
         logger.error(f"Error in GPT API request: {e}")
         raise
 
-
 # -------------------- ROUTES --------------------
-
-# @application.before_request
-# def handle_preflight():
-#     if request.method == "OPTIONS":
-#         response = jsonify()
-#         response.headers.add("Access-Control-Allow-Origin", "*")
-#         response.headers.add('Access-Control-Allow-Headers', "Content-Type,Authorization")
-#         response.headers.add('Access-Control-Allow-Methods', "GET,POST,PUT,DELETE,OPTIONS")
-#         response.headers.add('Access-Control-Max-Age', "86400")
-#         return response
-    
-# @application.after_request
-# def after_request(response):
-#     origin = request.headers.get('Origin')
-#     if origin in ['http://localhost:3000', 'http://127.0.0.1:3000','http://127.0.0.1:5000']:
-#         response.headers.add('Access-Control-Allow-Origin', origin)
-#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-#     response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
-#     response.headers.add('Access-Control-Allow-Credentials', 'true')
-#     return response
 
 @application.route('/')
 def index():
     """Health check route — confirms backend is running."""
-    return "Backend is running"
-
+    return jsonify({"status": "Backend is running", "db_connected": db is not None})
 
 @application.route('/signUp', methods=['POST'])
 def add_student():
-    """
-    Register a new student.
-    - Expects JSON with name, email, and password.
-    - Password is hashed using Argon2 before saving.
-    - Student data is stored in Firestore.
-    """
+    """Register a new student."""
     try:
         data = request.get_json()
         if not data:
@@ -306,24 +287,27 @@ def add_student():
             if field not in data:
                 return jsonify({"success": False, "message": f"Missing field: {field}"}), 400
 
+        # Check if student already exists
+        existing_student = db.collection("students").where("email", "==", data["email"]).limit(1).get()
+        if existing_student:
+            return jsonify({"success": False, "message": "Student with this email already exists"}), 409
+
+        # Hash password and save student
         hashed_password = ph.hash(data["password"])
-        data["password"] = hashed_password  
-
+        data["password"] = hashed_password
+        
         db.collection("students").add(data)
-
+        logger.info(f"New student registered: {data['email']}")
+        
         return jsonify({"success": True, "message": "Student added!"}), 201
-    except Exception as e:
-        return jsonify({"success": False, "message": str(e)}), 500
 
+    except Exception as e:
+        logger.error(f"Error in student registration: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
 
 @application.route('/login', methods=['POST'])
 def login_student():
-    """
-    Authenticate a student.
-    - Checks Firestore for email match.
-    - Verifies password against Argon2 hash.
-    - Returns student ID, name, and email if successful.
-    """
+    """Authenticate a student."""
     try:
         data = request.get_json()
         if not data:
@@ -336,6 +320,7 @@ def login_student():
             return jsonify({"success": False, "message": "Email and password required"}), 400
 
         students_ref = db.collection("students").where("email", "==", email).limit(1).get()
+
         if not students_ref:
             return jsonify({"success": False, "message": "Invalid email or password"}), 401
 
@@ -347,6 +332,8 @@ def login_student():
         except VerifyMismatchError:
             return jsonify({"success": False, "message": "Invalid email or password"}), 401
 
+        logger.info(f"Student login successful: {email}")
+        
         return jsonify({
             "success": True,
             "message": "Login successful",
@@ -358,17 +345,12 @@ def login_student():
         }), 200
 
     except Exception as e:
+        logger.error(f"Error in student login: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
-
 
 @application.route('/get-questions', methods=['POST'])
 def generate_questions():
-    """
-    Generate interview questions from a job description (PDF).
-    - Extracts text from uploaded PDF.
-    - Sends text to GPT model.
-    - Parses Q/A pairs and returns them as JSON.
-    """
+    """Generate interview questions from a job description (PDF)."""
     if 'file' not in request.files:
         return jsonify({'error': 'No file uploaded'}), 400
 
@@ -382,21 +364,23 @@ def generate_questions():
     if not job_description.strip():
         return jsonify({'error': 'PDF contains no extractable text'}), 400
 
-    prompt = f"Based on the following job description, generate 10 common interview questions and their answers in the format Q: ... A: ...\n\n{job_description}"
+    prompt = f"Based on the following job description, generate 10 common interview questions and their answers in the format Q: ... A: ...\\n\\n{job_description}"
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",  # ✅ upgraded model
+        model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": prompt}
         ]
     )
+
     answer_text = response.choices[0].message.content
 
     # Parse GPT output into structured Q/A pairs
     qa_pairs = []
-    lines = answer_text.split('\n')
+    lines = answer_text.split('\\n')
     current_q, current_a = '', ''
+
     for line in lines:
         if line.strip().startswith("Q:"):
             if current_q and current_a:
@@ -413,14 +397,9 @@ def generate_questions():
 
     return jsonify({'questions': qa_pairs})
 
-
 @application.route('/Ask', methods=['POST'])
 def Ask():
-    """
-    General Q&A route.
-    - Takes a user question as input.
-    - Returns GPT-generated response.
-    """
+    """General Q&A route."""
     try:
         data = request.get_json()
         question = data.get('question')
@@ -429,7 +408,7 @@ def Ask():
             return jsonify({"error": "No question provided"}), 400
 
         response = client.chat.completions.create(
-            model="gpt-4o-mini",  # ✅ upgraded model
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": question}
@@ -443,18 +422,12 @@ def Ask():
         return jsonify({"answer": answer})
 
     except Exception as e:
+        logger.error(f"Error in Ask route: {e}")
         return jsonify({"error": str(e)}), 500
-
 
 @application.route('/analyze', methods=['POST'])
 def analyze():
-    """
-    Compare CV against job description.
-    - Accepts two uploaded PDFs (JD + CV).
-    - Extracts text from both.
-    - Sends them to GPT for analysis.
-    - Returns JSON with match %, similarities, missing skills, and course recommendations.
-    """
+    """Compare CV against job description."""
     jd_file = request.files.get('job_description')
     cv_file = request.files.get('cv')
 
@@ -463,7 +436,7 @@ def analyze():
         return jsonify({'error': 'Missing data'}), 400
 
     try:
-        job_description = extract_text_from_pdf(jd_file)   # extract JD text
+        job_description = extract_text_from_pdf(jd_file)
         cv_text = extract_text_from_pdf(cv_file)
     except Exception as e:
         logger.error(f"Error processing files: {e}")
@@ -476,7 +449,9 @@ def analyze():
         logger.error(f"Error during analysis: {e}")
         return jsonify({'error': f"Error during analysis: {str(e)}"}), 500
 
-
 # Run app
 if __name__ == '__main__':
-    application.run(debug=True)
+    print(f"🚀 Starting BITS Pilani Job Matching System...")
+    print(f"🔥 Firestore status: {'✅ Connected' if db else '❌ Failed'}")
+    print(f"🌐 CORS enabled for: {ALLOWED_ORIGINS}")
+    application.run(debug=True, host='127.0.0.1', port=5000)

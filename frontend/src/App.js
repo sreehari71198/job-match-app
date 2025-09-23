@@ -14,30 +14,29 @@ import ChatPrep from './pages/ChatPrep';
 
 function App() {
   return (
-    <AuthProvider>
-      <JobProvider>
-        <BrowserRouter>
-          <div className="App">
-            <Header />
-            <main>
-              <Routes>
-                {/* Public route */}
-                <Route path="/" element={<Authentication />} />
-                
-                {/* Protected routes */}
-                <Route element={<PrivateRoute />}>
-                  <Route path="/SkillMatch" element={<Jobs />} />
-                  <Route path="/ChatPrep" element={<ChatPrep />} />
-                </Route>
-
-                {/* Catch all - redirect to login */}
-                <Route path="*" element={<Authentication />} />
-              </Routes>
-            </main>
+    <BrowserRouter>
+      <AuthProvider>
+        <JobProvider>
+          <div className="app">
+            <Header /> {/* Global header for all pages */}
+            
+            <Routes>
+              {/* Public route */}
+              <Route path="/" element={<Authentication />} />
+              
+              {/* Protected routes */}
+              <Route element={<PrivateRoute />}>
+                <Route path="/SkillMatch" element={<Jobs />} />
+                <Route path="/ChatPrep" element={<ChatPrep />} />
+              </Route>
+              
+              {/* Catch all - redirect to login */}
+              <Route path="*" element={<Authentication />} />
+            </Routes>
           </div>
-        </BrowserRouter>
-      </JobProvider>
-    </AuthProvider>
+        </JobProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
