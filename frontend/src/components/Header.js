@@ -58,13 +58,13 @@ const Header = () => {
                 to="/SkillMatch" 
                 className={`nav-button ${isActiveLink('/SkillMatch')}`}
               >
-                📊 Skill Match
+                Skill Match
               </Link>
               <Link 
                 to="/ChatPrep" 
                 className={`nav-button ${isActiveLink('/ChatPrep')}`}
               >
-                💬 Chat Prep
+                Chat Prep
               </Link>
             </nav>
           )}
