@@ -16,6 +16,9 @@ import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+import json
 
 # Load environment variables
 load_dotenv()
@@ -71,7 +74,8 @@ print("OpenAI Key (partial):", os.getenv("OPENAI_API_KEY", "")[:8] if os.getenv(
 def initialize_firestore():
     try:
         # Try local service account file
-        local_creds = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
+        # local_creds = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
+        local_creds=""
         if os.path.exists(local_creds):
             print(f"✅ Using local service account: {local_creds}")
             credentials = service_account.Credentials.from_service_account_file(local_creds)
@@ -448,6 +452,97 @@ def analyze():
     except Exception as e:
         logger.error(f"Error during analysis: {e}")
         return jsonify({'error': f"Error during analysis: {str(e)}"}), 500
+
+@application.route('/google-auth', methods=['POST'])
+def google_auth():
+    """Handle Google OAuth authentication."""
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"success": False, "message": "No data provided"}), 400
+
+        credential = data.get('credential')
+        email = data.get('email')
+        name = data.get('name')
+        google_id = data.get('googleId')
+
+        if not credential or not email:
+            return jsonify({"success": False, "message": "Invalid Google authentication data"}), 400
+
+        # Verify the domain
+        if not email.lower().endswith('@pilani.bits-pilani.ac.in'):
+            return jsonify({
+                "success": False, 
+                "message": "Access restricted to BITS Pilani students only"
+            }), 403
+
+        # Verify the Google token (optional but recommended for security)
+        try:
+            # Replace with your Google Client ID
+            CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+            idinfo = id_token.verify_oauth2_token(
+                credential, google_requests.Request(), CLIENT_ID)
+            
+            if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                raise ValueError('Wrong issuer.')
+                
+        except ValueError as e:
+            logger.error(f"Google token verification failed: {e}")
+            return jsonify({
+                "success": False, 
+                "message": "Invalid Google token"
+            }), 401
+
+        # Check if user exists
+        existing_student = db.collection("students").where("email", "==", email).limit(1).get()
+        
+        if existing_student:
+            # User exists, update Google ID if not set
+            student_doc = existing_student[0]
+            student_data = student_doc.to_dict()
+            
+            if not student_data.get('googleId'):
+                db.collection("students").document(student_doc.id).update({
+                    'googleId': google_id
+                })
+            
+            logger.info(f"Google login successful: {email}")
+            return jsonify({
+                "success": True,
+                "message": "Login successful",
+                "student": {
+                    "id": student_doc.id,
+                    "name": student_data.get("name"),
+                    "email": student_data.get("email")
+                }
+            }), 200
+        else:
+            # Create new user
+            new_student = {
+                "name": name,
+                "email": email,
+                "googleId": google_id,
+                "password": None,  # No password for Google OAuth users
+                "createdAt": firestore.SERVER_TIMESTAMP
+            }
+            
+            doc_ref = db.collection("students").add(new_student)
+            
+            logger.info(f"New Google user registered: {email}")
+            return jsonify({
+                "success": True,
+                "message": "Account created and login successful",
+                "student": {
+                    "id": doc_ref[1].id,
+                    "name": name,
+                    "email": email
+                }
+            }), 201
+
+    except Exception as e:
+        logger.error(f"Error in Google authentication: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 # Run app
 if __name__ == '__main__':
