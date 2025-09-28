@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1.5rem;
+  gap: 0.5rem; /* REDUCED from 0.75rem */
+  padding: 1rem; /* REDUCED from 1.5rem */
   background: white;
   border-radius: 12px;
   /* CONSISTENT SHADOW - Same as skill cards */
@@ -23,10 +23,10 @@
 }
 
 .gauge-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem; /* SLIGHTLY REDUCED from 1.2rem */
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem; /* REDUCED from 0.5rem */
   text-align: center;
 }
 
@@ -47,20 +47,20 @@
 }
 
 .gauge-percentage {
-  font-size: 3rem;
+  font-size: 3rem; /* KEPT SAME - gauge meter not shrunk */
   font-weight: 800;
   font-family: 'Roboto Condensed', sans-serif;
 }
 
 .gauge-label {
-  font-size: 1rem;
+  font-size: 1rem; /* KEPT SAME */
   font-weight: 600;
   font-family: 'Roboto Condensed', sans-serif;
 }
 
 .gauge-markers-half {
   position: absolute;
-  bottom: 10px;
+  bottom: 5px; /* REDUCED from 10px */
   left: 0;
   right: 0;
   display: flex;
@@ -92,32 +92,41 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .gauge-container {
-    padding: 1.25rem;
+    padding: 0.75rem; /* REDUCED from 1.25rem */
   }
-  
+
   .gauge-title {
-    font-size: 1.1rem;
+    font-size: 1rem; /* SLIGHTLY REDUCED from 1.1rem */
   }
-  
+
   .gauge-percentage {
-    font-size: 2.5rem;
+    font-size: 2.5rem; /* KEPT REASONABLE SIZE */
   }
-  
+
   .gauge-label {
     font-size: 0.9rem;
   }
-  
+
   .gauge-markers-half {
     padding: 0 30px;
+    bottom: 3px; /* REDUCED */
   }
 }
 
 @media (max-width: 480px) {
   .gauge-percentage {
-    font-size: 2rem;
+    font-size: 2rem; /* KEPT REASONABLE SIZE */
   }
-  
+
   .gauge-label {
     font-size: 0.8rem;
+  }
+
+  .gauge-container {
+    padding: 0.5rem; /* REDUCED further on mobile */
+  }
+
+  .gauge-markers-half {
+    bottom: 2px; /* REDUCED */
   }
 }

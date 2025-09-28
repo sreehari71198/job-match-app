@@ -180,91 +180,107 @@ const Authentication = () => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2 className="auth-title">Student Login</h2>
-        <p className="auth-subtitle">
-          Log in using your BITS Pilani Email Account<br />
-          <span className="example-text">Example: xyz@pilani.bits-pilani.ac.in</span>
-        </p>
+    <div className="auth-page">
+      {/* Main Content */}
+      <main className="auth-main">
+        <div className="auth-container">
+          <div className="auth-card">
+            <h2 className="auth-title">Student Login</h2>
+            <p className="auth-subtitle">
+              Log in using your BITS Pilani Email Account<br />
+              <span className="example-text">Example: xyz@pilani.bits-pilani.ac.in</span>
+            </p>
 
-        <div className="auth-toggle">
-          <button
-            className={isLogin ? "active" : ""}
-            onClick={() => handleToggle(true)}
-            disabled={loading}
-          >
-            Login
-          </button>
-          <button
-            className={!isLogin ? "active" : ""}
-            onClick={() => handleToggle(false)}
-            disabled={loading}
-          >
-            Sign Up
-          </button>
-        </div>
+            <div className="auth-toggle">
+              <button
+                className={isLogin ? "active" : ""}
+                onClick={() => handleToggle(true)}
+                disabled={loading}
+              >
+                Login
+              </button>
+              <button
+                className={!isLogin ? "active" : ""}
+                onClick={() => handleToggle(false)}
+                disabled={loading}
+              >
+                Sign Up
+              </button>
+            </div>
 
-        {/* Google Sign-In Button */}
-        <div className="google-signin-container">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            useOneTap={false}
-            theme="outline"
-            size="large"
-            text="Sign in with BITS Email ID"
-            shape="rectangular"
-            disabled={loading}
-          />
-        </div>
+            {/* Google Sign-In Button */}
+            <div className="google-signin-container">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={handleGoogleError}
+                useOneTap={false}
+                theme="outline"
+                size="large"
+                text="Sign in with BITS Email ID"
+                shape="rectangular"
+                disabled={loading}
+              />
+            </div>
 
-        <div className="divider">
-          <span>OR</span>
-        </div>
+            <div className="divider">
+              <span>OR</span>
+            </div>
 
-        <form onSubmit={handleSubmit} className="auth-form">
-          {!isLogin && (
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-              disabled={loading}
-            />
-          )}
-          <input
-            type="email"
-            name="email"
-            placeholder="Email (xyz@pilani.bits-pilani.ac.in)"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-            disabled={loading}
-          />
-          
-          <button type="submit" disabled={loading} className="auth-submit-btn">
-            {loading ? "Please wait..." : (isLogin ? "Login" : "Sign Up")}
-          </button>
-        </form>
+            <form onSubmit={handleSubmit} className="auth-form">
+              {!isLogin && (
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Full Name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  disabled={loading}
+                />
+              )}
+              <input
+                type="email"
+                name="email"
+                placeholder="Email (xyz@pilani.bits-pilani.ac.in)"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              />
+              <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+                disabled={loading}
+              />
+              
+              <button type="submit" disabled={loading} className="auth-submit-btn">
+                {loading ? "Please wait..." : (isLogin ? "LOGIN" : "SIGN UP")}
+              </button>
+            </form>
 
-        {message && (
-          <div className={`auth-message ${message.includes('successful') ? 'success' : 'error'}`}>
-            {message}
+            {message && (
+              <div className={`auth-message ${message.includes('successful') ? 'success' : 'error'}`}>
+                {message}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      </main>
+
+      {/* Footer - Same as Jobs.js */}
+      <footer className="bits-footer">
+        <div className="footer-content">
+          <div className="footer-left">
+            <p>© 2025 MatchMySkill - BITS Pilani. All rights reserved.</p>
+            <p>Built by BITS Pilani Dept of Management, BITS Pilani Pilani campus.</p>
+            <p>Empowering your career journey with AI-driven insights.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

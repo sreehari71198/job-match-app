@@ -74,8 +74,8 @@ print("OpenAI Key (partial):", os.getenv("OPENAI_API_KEY", "")[:8] if os.getenv(
 def initialize_firestore():
     try:
         # Try local service account file
-        # local_creds = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
-        local_creds=""
+        local_creds = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
+        # local_creds=""
         if os.path.exists(local_creds):
             print(f"✅ Using local service account: {local_creds}")
             credentials = service_account.Credentials.from_service_account_file(local_creds)
