@@ -41,9 +41,9 @@
 }
 
 .app-logo-image {
-  height: 60px;
+  height: 80px;
   width: auto;
-  max-width: 130px;
+  max-width: 160px;
   object-fit: contain;
 }
 
@@ -84,7 +84,7 @@
 .bits-logo-image {
   height: 90px;
   width: auto;
-  max-width: 70px;
+  max-width: 90px;
   object-fit: contain;
 }
 
