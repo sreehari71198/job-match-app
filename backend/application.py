@@ -74,8 +74,8 @@ print("OpenAI Key (partial):", os.getenv("OPENAI_API_KEY", "")[:8] if os.getenv(
 def initialize_firestore():
     try:
         # Try local service account file
-        local_creds = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
-        # local_creds=""
+        # local_creds = "jobmatchstudent-firebase-adminsdk-fbsvc-b89d7054b1.json"
+        local_creds=""
         if os.path.exists(local_creds):
             print(f"✅ Using local service account: {local_creds}")
             credentials = service_account.Credentials.from_service_account_file(local_creds)
@@ -352,82 +352,104 @@ def login_student():
         logger.error(f"Error in student login: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
 
-@application.route('/get-questions', methods=['POST'])
+@application.route('/generate-questions', methods=['POST'])
 def generate_questions():
-    """Generate interview questions from a job description (PDF)."""
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-
-    pdf_file = request.files['file']
-
-    try:
-        job_description = extract_text_from_pdf(pdf_file)
-    except Exception as e:
-        return jsonify({'error': f'Failed to extract text from PDF: {str(e)}'}), 500
-
-    if not job_description.strip():
-        return jsonify({'error': 'PDF contains no extractable text'}), 400
-
-    prompt = f"Based on the following job description, generate 10 common interview questions and their answers in the format Q: ... A: ...\\n\\n{job_description}"
-
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ]
-    )
-
-    answer_text = response.choices[0].message.content
-
-    # Parse GPT output into structured Q/A pairs
-    qa_pairs = []
-    lines = answer_text.split('\\n')
-    current_q, current_a = '', ''
-
-    for line in lines:
-        if line.strip().startswith("Q:"):
-            if current_q and current_a:
-                qa_pairs.append({'question': current_q, 'answer': current_a})
-            current_q = line.strip()[2:].strip()
-            current_a = ''
-        elif line.strip().startswith("A:"):
-            current_a = line.strip()[2:].strip()
-        else:
-            current_a += ' ' + line.strip()
-
-    if current_q and current_a:
-        qa_pairs.append({'question': current_q, 'answer': current_a})
-
-    return jsonify({'questions': qa_pairs})
-
-@application.route('/Ask', methods=['POST'])
-def Ask():
-    """General Q&A route."""
+    """Generate interview questions based on job description."""
     try:
         data = request.get_json()
-        question = data.get('question')
+        job_description = data.get('jobDescription', '')
+        
+        if not job_description:
+            return jsonify({"success": False, "message": "Job description required"}), 400
+        
+        # Create prompt for OpenAI
+        prompt = f"""Based on this job description, generate 8-10 relevant interview questions that would help assess a candidate's suitability for this role. Focus on both technical and behavioral questions.
 
-        if not question:
-            return jsonify({"error": "No question provided"}), 400
+Job Description:
+{job_description}
+
+Please provide questions that are:
+1. Specific to the role requirements
+2. Mix of technical and behavioral questions
+3. Appropriate difficulty level
+4. Clear and concise
+
+Format: Return only the questions as a simple list."""
 
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant."},
-                {"role": "user", "content": question}
-            ]
+                {"role": "system", "content": "You are an expert HR interviewer. Generate relevant, professional interview questions."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=1000,
+            temperature=0.7
         )
-
-        answer = response.choices[0].message.content.strip()
-        logger.debug(f"Received question: {question}")
-        logger.debug(f"OpenAI response: {answer}")
-
-        return jsonify({"answer": answer})
-
+        
+        content = response.choices[0].message.content.strip()
+        
+        # Parse questions from response
+        questions = []
+        lines = content.split('\n')
+        for line in lines:
+            line = line.strip()
+            if line and not line.isspace():
+                # Remove numbering and formatting
+                clean_question = re.sub(r'^\d+\.?\s*', '', line)
+                clean_question = re.sub(r'^[-*•]\s*', '', clean_question)
+                if clean_question and len(clean_question) > 10:
+                    questions.append(clean_question)
+        
+        return jsonify({
+            "success": True,
+            "questions": questions[:10]  # Limit to 10 questions
+        })
+        
     except Exception as e:
-        logger.error(f"Error in Ask route: {e}")
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Error generating questions: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
+@application.route('/chat', methods=['POST'])
+def chat():
+    """Handle chat conversations for interview prep."""
+    try:
+        data = request.get_json()
+        message = data.get('message', '')
+        context = data.get('context', '')
+        
+        if not message:
+            return jsonify({"success": False, "message": "Message required"}), 400
+        
+        # Create conversation prompt
+        system_prompt = """You are an expert career coach and interview preparation assistant. Help users prepare for job interviews by:
+1. Providing thoughtful answers to interview questions
+2. Giving feedback on responses
+3. Offering tips and best practices
+4. Role-playing as an interviewer when needed
+
+Be encouraging, professional, and provide actionable advice."""
+
+        user_prompt = f"{context}Question/Message: {message}"
+        
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            max_tokens=800,
+            temperature=0.8
+        )
+        
+        return jsonify({
+            "success": True,
+            "response": response.choices[0].message.content.strip()
+        })
+        
+    except Exception as e:
+        logger.error(f"Error in chat: {e}")
+        return jsonify({"success": False, "message": str(e)}), 500
+
 
 @application.route('/analyze', methods=['POST'])
 def analyze():

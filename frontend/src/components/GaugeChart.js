@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/GaugeChart.css';
 
-const GaugeChart = ({ percentage, size = 280, title = "Overall Match" }) => {
+const GaugeChart = ({ percentage, size = 200, title = "Overall Match" }) => {
   const [animatedPercentage, setAnimatedPercentage] = useState(0);
   
   useEffect(() => {
@@ -108,13 +108,6 @@ const GaugeChart = ({ percentage, size = 280, title = "Overall Match" }) => {
             {getLabel(animatedPercentage)}
           </text>
         </svg>
-
-        {/* Markers */}
-        <div className="gauge-markers-half">
-          <span className="marker-start">0%</span>
-          <span className="marker-mid">50%</span>
-          <span className="marker-end">100%</span>
-        </div>
       </div>
     </div>
   );

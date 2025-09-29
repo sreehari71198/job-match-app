@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; // Added useRef
 import axios from 'axios';
 import '../styles/Jobs.css';
 import { useJobContext } from '../context/JobContext';
@@ -29,6 +29,9 @@ const Jobs = () => {
   const [jdFileName, setJdFileName] = useState(() => lsGet('jobDescriptionFileName', ''));
   const [feedback, setFeedback] = useState(() => lsGet('feedback', null));
   const { setJobDescription: setGlobalJobDescription } = useJobContext();
+
+  // Add ref for results section
+  const resultsRef = useRef(null);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -63,7 +66,7 @@ const Jobs = () => {
       const response = await axios.post(`${API_URL}/analyze`, formData);
       setFeedback(response.data.feedback);
       lsSet('feedback', response.data.feedback);
-      setGlobalJobDescription(jobDescriptionFile);
+      // setGlobalJobDescription(jobDescriptionFile);
     } catch (error) {
       console.error('There was an error!', error);
       alert(`An error occurred while processing your request: ${error.response?.data?.error || error.message}`);
@@ -71,6 +74,24 @@ const Jobs = () => {
       setLoadingFeedback(false);
     }
   };
+// Auto-scroll to results when feedback is loaded (accounting for fixed header)
+useEffect(() => {
+  if (feedback && resultsRef.current) {
+    const timer = setTimeout(() => {
+      const headerHeight = 120; // Adjust this value to match your header height
+      const elementPosition = resultsRef.current.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }
+}, [feedback]);
+
 
   useEffect(() => {
     const handleBeforeUnload = () => {
@@ -158,9 +179,9 @@ const Jobs = () => {
             </div>
           </div>
 
-          {/* Results Section */}
+          {/* Results Section - Added ref here */}
           {feedback && (
-            <div className="results-section">
+            <div ref={resultsRef} className="results-section">
               {/* Compact Summary Layout */}
               <div className="summary-layout">
                 {/* Half-circle gauge */}

@@ -53,28 +53,6 @@ const Header = () => {
               <p>AI-Powered Skill Gap Analysis & Course Recommendations</p>
             </div>
           </div>
-
-          {/* Center: BITS Clock Tower Image (only on login page) */}
-          {isLoginPage && (
-            <div className="center-hero-login">
-              <div className="bits-hero-image">
-                <img 
-                  src="/Bits_Clock_tower.jpg" 
-                  alt="BITS Pilani Clock Tower" 
-                  className="clock-tower-image"
-                  onError={(e) => {
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'flex';
-                  }}
-                />
-                <div className="hero-fallback" style={{display: 'none'}}>
-                  <span>🏛️</span>
-                  <p>BITS Pilani<br/>Clock Tower</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Center: Navigation (only when authenticated) */}
           {isAuthenticated && (
             <nav className="navigation">
