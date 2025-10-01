@@ -276,8 +276,8 @@ const Authentication = () => {
         <div className="footer-content">
           <div className="footer-left">
             <p>© 2025 MatchMySkill - BITS Pilani. All rights reserved.</p>
-            <p>Built by BITS Pilani Dept of Management, BITS Pilani Pilani campus.</p>
-            <p>Empowering your career journey with AI-driven insights.</p>
+            <p>Release Version 1.0 - MatchMySkill</p>
+            <p>Built by Dept. of Management, BITS Pilani, Pilani campus.</p>
           </div>
         </div>
       </footer>

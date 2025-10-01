@@ -352,62 +352,109 @@ def login_student():
         logger.error(f"Error in student login: {e}")
         return jsonify({"success": False, "message": str(e)}), 500
 
+# application.py — replace only this endpoint
+
 @application.route('/generate-questions', methods=['POST'])
 def generate_questions():
-    """Generate interview questions based on job description."""
     try:
-        data = request.get_json()
-        job_description = data.get('jobDescription', '')
-        
-        if not job_description:
-            return jsonify({"success": False, "message": "Job description required"}), 400
-        
-        # Create prompt for OpenAI
-        prompt = f"""Based on this job description, generate 8-10 relevant interview questions that would help assess a candidate's suitability for this role. Focus on both technical and behavioral questions.
+        data = request.get_json(force=True) or {}
+        job_description = (data.get('jobDescription') or '').strip()
+        cv_text = (data.get('cvText') or '').strip()
 
-Job Description:
-{job_description}
+        # Optional scaffolding from your analysis to bias specificity
+        jd_skills_found = data.get('skillsFound') or []
+        jd_skills_missing = data.get('skillsMissing') or []
+        top_courses = data.get('topCourses') or []  # optional
 
-Please provide questions that are:
-1. Specific to the role requirements
-2. Mix of technical and behavioral questions
-3. Appropriate difficulty level
-4. Clear and concise
+        if not job_description and not cv_text:
+            return jsonify({"success": False, "message": "Provide jobDescription and/or cvText"}), 400
 
-Format: Return only the questions as a simple list."""
+        # Craft explicit, grounded prompt
+        prompt = f"""
+You are an expert interviewer. Create 10 interview questions that are SPECIFIC to the following inputs.
 
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+JOB DESCRIPTION (JD):
+{job_description if job_description else "[none provided]"}
+
+CANDIDATE CV (CV):
+{cv_text if cv_text else "[none provided]"}
+
+CONSTRAINTS:
+- Every question MUST explicitly reference either:
+  A) a concrete JD requirement (technology, tool, domain, KPI, methodology, responsibility), or
+  B) a concrete CV experience/achievement (project, metric, stack, responsibility).
+- Avoid generic questions (e.g., "Tell me about yourself").
+- Prefer questions that verify ability to DO the JD responsibilities using the candidate’s documented CV skills.
+- Mix: 6 technical/task/architecture/process questions, 4 behavioral/situational questions tied to JD responsibilities.
+- Where possible, weave at least one of these JD-derived or analysis-derived cues:
+  - JD skills/keywords: {", ".join(jd_skills_found[:10]) if jd_skills_found else "[none]"}
+  - Missing skills to probe: {", ".join(jd_skills_missing[:10]) if jd_skills_missing else "[none]"}
+
+FORMAT:
+- Return a numbered list (1-10) of concise questions only.
+- For each question, append a source tag in brackets indicating [JD] or [CV], or [JD+CV] if combined.
+
+EXAMPLES OF SPECIFICITY:
+- If JD says "build pipelines in Airflow" and CV shows "ETL with Airflow & BigQuery":
+  "Walk through an Airflow DAG you built that orchestrates BigQuery loads; how would you adapt it for the JD’s SLA/KPI of X?" [JD+CV]
+- If JD asks for "A/B testing" and CV shows "experimentation @ company":
+  "Describe an A/B test you ran; how would you adapt your experiment design to match the JD’s funnel metrics?" [JD+CV]
+"""
+
+        # Use a strong model with focused decoding
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are an expert HR interviewer. Generate relevant, professional interview questions."},
+                {"role": "system", "content": "You produce strictly grounded, role-specific interview questions."},
                 {"role": "user", "content": prompt}
             ],
-            max_tokens=1000,
-            temperature=0.7
+            temperature=0.3,
+            max_tokens=1200
         )
-        
-        content = response.choices[0].message.content.strip()
-        
-        # Parse questions from response
+
+        raw = completion.choices[0].message.content.strip()
+
+        # Parse questions and enforce grounding
+        lines = [l.strip() for l in raw.splitlines() if l.strip()]
         questions = []
-        lines = content.split('\n')
         for line in lines:
-            line = line.strip()
-            if line and not line.isspace():
-                # Remove numbering and formatting
-                clean_question = re.sub(r'^\d+\.?\s*', '', line)
-                clean_question = re.sub(r'^[-*•]\s*', '', clean_question)
-                if clean_question and len(clean_question) > 10:
-                    questions.append(clean_question)
-        
+            # remove numbering/bullets
+            import re
+            q = re.sub(r'^\s*(\d+[\).\s-]|[-*•])\s*', '', line)
+            if len(q) > 15 and '?' in q:
+                questions.append(q)
+
+        # Final safety pass: ensure each has a [JD]/[CV] tag; if missing, add heuristic tag
+        tagged = []
+        for q in questions:
+            tag = ''
+            lower_q = q.lower()
+            # Heuristics using JD/CV cues
+            jd_cues = (jd_skills_found or []) + (jd_skills_missing or [])
+            hits_jd = any(k.lower() in lower_q for k in jd_cues) or ("according to the jd" in lower_q)
+            hits_cv = any(word in lower_q for word in ["your project", "on your resume", "in your cv", "in your experience"])
+            if '[JD' in q or '[CV' in q:
+                tagged.append(q)
+            else:
+                if hits_jd and hits_cv:
+                    tagged.append(f"{q} [JD+CV]")
+                elif hits_cv:
+                    tagged.append(f"{q} [CV]")
+                else:
+                    tagged.append(f"{q} [JD]")
+
+        # Limit to 10 best
+        tagged = tagged[:10]
+
         return jsonify({
             "success": True,
-            "questions": questions[:10]  # Limit to 10 questions
+            "questions": tagged
         })
-        
+
     except Exception as e:
-        logger.error(f"Error generating questions: {e}")
+        application.logger.exception("Error in generate_questions")
         return jsonify({"success": False, "message": str(e)}), 500
+
 
 @application.route('/chat', methods=['POST'])
 def chat():

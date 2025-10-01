@@ -315,8 +315,9 @@ useEffect(() => {
       <footer className="bits-footer">
         <div className="footer-content">
           <div className="footer-left">
-            <p>© 2025 Department of Management, BITS Pilani, Pilani Campus</p>
+            <p>© 2025 MatchMySkill - BITS Pilani. All rights reserved.</p>
             <p>Release Version 1.0 - MatchMySkill</p>
+            <p>Built by Dept. of Management, BITS Pilani, Pilani campus.</p>
           </div>
         </div>
       </footer>
