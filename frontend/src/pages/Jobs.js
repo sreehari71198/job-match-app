@@ -304,7 +304,7 @@ useEffect(() => {
                   <li>Click "Analyze Match" to get AI-powered insights</li>
                   <li>Receive personalized BITS course recommendations</li>
                   <li>Bridge your skill gaps with targeted learning</li>
-                  <li>Use chatprep for more insights answers from your JD</li>
+                  <li>Use "Interview Prep" for more insights answers from your JD</li>
                 </ol>
               </div>
             </div>
