@@ -73,21 +73,31 @@ const Authentication = () => {
         }
 
         localStorage.setItem("jm_userId", newUserId);
-        login({
+        
+        // Call login function
+        await login({
           id: data.student.id,
           name: data.student.name,
           email: data.student.email
         });
 
-        const from = location.state?.from?.pathname || "/jobs";
-        navigate(from, { replace: true });
+        // Force immediate navigation after login
+        const targetPath = location.state?.from?.pathname || "/jobs";
+        
+        // Use setTimeout to ensure state updates complete
+        setTimeout(() => {
+          navigate(targetPath, { replace: true });
+          // Force a page reload if navigation doesn't work
+          window.location.href = targetPath;
+        }, 100);
+
       } else {
         setMessage(data.message || "Google authentication failed.");
+        setLoading(false);
       }
     } catch (error) {
       console.error("Google auth error:", error);
       setMessage("Google authentication failed. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -97,7 +107,6 @@ const Authentication = () => {
   };
 
   const handleCustomButtonClick = () => {
-    // Trigger the hidden Google button
     if (googleButtonRef.current) {
       const googleButton = googleButtonRef.current.querySelector('div[role="button"]');
       if (googleButton) {
@@ -121,7 +130,6 @@ const Authentication = () => {
               </span>
             </div>
 
-            {/* Custom BITS Login Button */}
             <div className="custom-google-signin">
               <button 
                 className="bits-login-button"
@@ -144,7 +152,6 @@ const Authentication = () => {
               </button>
             </div>
 
-            {/* Hidden Google Login Component */}
             <div ref={googleButtonRef} style={{ display: 'none', opacity: 0, position: 'absolute', pointerEvents: 'none' }}>
               <GoogleLogin
                 onSuccess={handleGoogleSuccess}
