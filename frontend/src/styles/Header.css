@@ -16,7 +16,6 @@
 }
 
 .header-container {
-  max-width: 1400px;
   margin: 0 auto;
   padding: 0 2rem;
   display: flex;
@@ -55,7 +54,7 @@
 
 .app-info h1 {
   color: #0ea5e9;
-  font-size: 1.6rem;  /* REDUCE from 2.3rem */
+  font-size: 2.6rem;  /* REDUCE from 2.3rem */
   font-weight: 700;
   margin: 0;
   letter-spacing: 0.5px;  /* REDUCE from 1px */
@@ -63,7 +62,7 @@
 
 .app-info p {
   color: #666;
-  font-size: 0.8rem;  /* REDUCE from 0.9rem */
+  font-size: 1rem;  /* REDUCE from 0.9rem */
   font-weight: 400;
   margin: 0;
   line-height: 1.2;
@@ -150,7 +149,7 @@
 
 .bits-info h1 {
   color: #003366;
-  font-size: 1.6rem;  /* REDUCE from 2.3rem */
+  font-size: 2.3rem;  /* REDUCE from 2.3rem */
   font-weight: 700;
   margin: 0;
   text-align: right;
@@ -158,7 +157,7 @@
 
 .bits-info h2 {
   color: #003366;
-  font-size: 0.95rem;  /* REDUCE from 1.1rem */
+  font-size: 1.5rem;  /* REDUCE from 1.1rem */
   font-weight: 500;
   margin: 0;
   text-align: right;
@@ -166,7 +165,7 @@
 
 .bits-info h3 {
   color: #666;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 400;
   margin: 0;
   text-align: right;

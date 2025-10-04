@@ -43,9 +43,9 @@
 }
 
 .app-logo-image {
-  height: 80px;
+  height: 90px;
   width: auto;
-  max-width: 160px;
+  max-width: 200px;
   object-fit: contain;
 }
 
@@ -230,7 +230,7 @@
 .upload-label span {
   font-weight: 600;
   color: #374151;
-  font-size: 0.95rem;
+  font-size: 1.7rem;
 }
 
 .upload-input {
