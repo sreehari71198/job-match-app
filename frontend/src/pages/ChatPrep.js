@@ -194,7 +194,7 @@ const ChatPrep = () => {
             <div className="questions-section">
               <div className="section-card">
                 <div className="section-header">
-                  <h2>Generated Questions</h2>
+                  <h2>AI Question Builder</h2>
                   <div className="section-actions">
                     <button
                       onClick={generateQuestions}
@@ -281,7 +281,7 @@ const ChatPrep = () => {
                   {qaList.length === 0 ? (
                     <div className="empty-state">
                       <span>💬</span>
-                      <p>Start a conversation! Ask any interview-related questions.</p>
+                      <p>Start a conversation with AI assistant!!! Ask any interview-related questions.</p>
                     </div>
                   ) : (
                     <div className="chat-messages">
@@ -324,16 +324,7 @@ const ChatPrep = () => {
       <footer className="bits-footer">
         <div className="footer-content">
           <div className="footer-left">
-            <p>© 2025 MatchMySkill - BITS Pilani. All rights reserved.</p>
-            <p>Built for BITS Pilani students by BITS Pilani students.</p>
-            <p>Empowering your career journey with AI-driven insights.</p>
-          </div>
-          <div className="footer-right">
-            <div className="footer-badges">
-              <span className="badge innovate">innovate</span>
-              <span className="badge achieve">achieve</span>
-              <span className="badge lead">lead</span>
-            </div>
+            <p>© 2025 MatchMySkill - Department of Management, BITS Pilani. All rights reserved.</p>
           </div>
         </div>
       </footer>

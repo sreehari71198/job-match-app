@@ -304,6 +304,7 @@ useEffect(() => {
                   <li>Click "Analyze Match" to get AI-powered insights</li>
                   <li>Receive personalized BITS course recommendations</li>
                   <li>Bridge your skill gaps with targeted learning</li>
+                  <li>Use chatprep for more insights answers from your JD</li>
                 </ol>
               </div>
             </div>
@@ -315,9 +316,7 @@ useEffect(() => {
       <footer className="bits-footer">
         <div className="footer-content">
           <div className="footer-left">
-            <p>© 2025 MatchMySkill - BITS Pilani. All rights reserved.</p>
-            <p>Release Version 1.0 - MatchMySkill</p>
-            <p>Built by Dept. of Management, BITS Pilani, Pilani campus.</p>
+            <p>© 2025 MatchMySkill - Department of Management, BITS Pilani. All rights reserved.</p>
           </div>
         </div>
       </footer>
