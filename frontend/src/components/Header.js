@@ -66,7 +66,7 @@ const Header = () => {
                 to="/ChatPrep" 
                 className={`nav-button ${isActiveLink('/ChatPrep')}`}
               >
-                Chat Prep
+                Interview Prep
               </Link>
             </nav>
           )}
