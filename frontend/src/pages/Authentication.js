@@ -31,7 +31,7 @@ const Authentication = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      const from = location.state?.from?.pathname || "/jobs";
+      const from = location.state?.from?.pathname || "/SkillMatch";
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, navigate, location.state?.from?.pathname]);
