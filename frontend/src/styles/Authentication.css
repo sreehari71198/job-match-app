@@ -348,67 +348,6 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .auth-main {
-    padding: 1.5rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .auth-main {
-    padding: 1rem;
-  }
-  
-  .auth-card {
-    padding: 2rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .auth-main {
-    padding: 1rem;
-  }
-
-  .auth-card {
-    padding: 2rem 1.5rem;
-  }
-
-  .auth-title {
-    font-size: 1.6rem;
-  }
-
-  .footer-content {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-  }
-
-  /* Adjust background for mobile */
-  .auth-page::before {
-    background-attachment: scroll;
-    background-position: center top;
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-card {
-    padding: 1.5rem 1rem;
-    margin: 0.5rem;
-  }
-
-  .auth-title {
-    font-size: 1.4rem;
-  }
-
-  .auth-toggle button {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .footer-content {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-}
 
 /* Focus indicators for accessibility */
 .auth-toggle button:focus,
@@ -426,13 +365,7 @@
 }
 
 /* Ensure background covers full viewport on all devices */
-@media (max-width: 768px) {
-  .auth-page::before {
-    background-size: cover;
-    background-position: center center;
-    min-height: 100vh;
-  }
-}
+
 
 /* Loading animation for form */
 @keyframes fadeIn {

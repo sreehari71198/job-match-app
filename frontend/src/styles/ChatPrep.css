@@ -362,80 +362,16 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .chatprep-container {
-    padding: 0 1.5rem;
-  }
-  
-  .chatprep-grid {
-    gap: 1.5rem;
-  }
+
+/* Prevent horizontal overflow */
+.chatprep-page {
+  overflow-x: hidden;
+  width: 100%;
 }
 
-@media (max-width: 992px) {
-  .chatprep-grid {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  
-  .section-card {
-    height: 500px;
-  }
-  
-  .chatprep-header h1 {
-    font-size: 2rem;
-  }
+.chatprep-container {
+  overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 768px) {
-  .chatprep-main {
-    padding: 1rem 0;
-  }
-  
-  .chatprep-container {
-    padding: 0 1rem;
-  }
-  
-  .chatprep-header {
-    margin-bottom: 2rem;
-  }
-  
-  .section-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .section-actions {
-    justify-content: center;
-  }
-  
-  .footer-content {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-  
-  .footer-badges {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .chatprep-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .question-item {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .practice-btn {
-    align-self: flex-start;
-  }
-  
-  .message {
-    max-width: 95%;
-  }
-}

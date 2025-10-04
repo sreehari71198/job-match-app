@@ -80,19 +80,3 @@
 }
 
 /* Responsive */
-@media (max-width: 480px) {
-  .prompt-input-container {
-    gap: 0.5rem;
-    padding: 0.4rem;
-  }
-  
-  .prompt-input {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.9rem;
-  }
-  
-  .prompt-submit {
-    padding: 0.6rem 1rem;
-    font-size: 0.85rem;
-  }
-}
